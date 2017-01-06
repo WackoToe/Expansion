@@ -65,7 +65,7 @@ function setUniversePlanets(){
 			x: pos_x,
 			y: pos_y,
 			radius: rad,
-			colorTheme: "#0000FF",
+			colorTheme: "#3322FF",
 			closerPlanets: null
 		});
 		pos_x = -1;
@@ -165,10 +165,12 @@ function setPlanetsLink(){
 				m = flpr[0];
 				q = flpr[1];
 				
-				m_perp = -1/(m);
-				q_perp = planetInters.y - m_perp*planetInters.x;
+				m_perp = -1/(m);										// Line angular coefficient, perpendicular to the link
+				q_perp = planetInters.y - m_perp*planetInters.x;		// Line intercept coefficient
 
-				intersPoint = lineIntersection(m, q, m_perp, q_perp);
+				intersPoint = lineIntersection(m, q, m_perp, q_perp);	// Intersection between the link and the perpendicular line
+				
+				// When the distance between the intersection point and the center of planetInters is less than radius+50 we mark this link as a wrong link
 				if(distanceBetweenPoints(intersPoint, [planetInters.x, planetInters.y]) < (planetInters.radius + 50 )) wrongLinksArray[j] = 1;
 			}
 		}
@@ -177,6 +179,35 @@ function setPlanetsLink(){
 			
 		wrongLinksArray = [0,0,0];
 	}
+
+
+	// Now we handle the problem about isolated sub-systems
+	var fullyConnected = false;
+	var reachable = [10];						//The array of the reachable planets
+	var reachableQueue = [];
+	var nextInQueue;
+	reachable[0] = 1;
+	while(!fullyConnected){
+		currentPlanet = planetsArray[0];			//We check whether from the first planet we can reach the last one
+		for(j=1; j<reachable.length; ++j) reachable[j] = 0;
+		for(j=0; j<currentPlanet.closerPlanets.length; ++j ) {
+			reachable[currentPlanet.closerPlanets[j]] = 1;			//Getting the neighbours, setting them as reachable
+			reachableQueue.push(currentPlanet.closerPlanets[j])		//Adding the neighbours to the queue we have to check
+		}
+
+		while(reachableQueue.length != 0){
+			nextIndexInQueue = reachableQueue.shift();
+			nextPlanet = planetsArray[nextIndexInQueue];
+			for(j=0; j<nextPlanet.closerPlanets.length; ++j){
+				if(reachable[nextPlanet.closerPlanets[j]]==0){
+					reachable[nextPlanet.closerPlanets[j]] = 1;
+					reachableQueue.push(nextPlanet.closerPlanets[j])
+				}
+			}
+		}
+
+	}
+	
 }
 
 
@@ -193,7 +224,7 @@ function drawLinks(p){
 	var nextPlanet = null;
 	for(i=0; i<(p.closerPlanets.length); ++i){
 		nextPlanet = planetsArray[p.closerPlanets[i]];
-		c.strokeStyle = "#FF0000";
+		c.strokeStyle = "#55CC11";
 		c.lineWidth = 3;
 		c.beginPath();
 		c.moveTo(p.x, p.y);
