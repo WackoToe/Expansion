@@ -154,7 +154,7 @@ function setPlanetsLink(){
 	var wrongLinksArray = [0,0,0];
 
 	for(i=0; i<PLANETS_NUMBER; ++i){
-		console.log("i= " + i);
+		//console.log("i= " + i);
 		currentPlanet = planetsArray[i];
 
 		for(j=1; j<currentPlanet.closerPlanets.length; ++j){
@@ -180,34 +180,79 @@ function setPlanetsLink(){
 		wrongLinksArray = [0,0,0];
 	}
 
-
-	// Now we handle the problem about isolated sub-systems
-	var fullyConnected = false;
-	var reachable = [10];						//The array of the reachable planets
-	var reachableQueue = [];
-	var nextInQueue;
-	reachable[0] = 1;
-	while(!fullyConnected){
-		currentPlanet = planetsArray[0];			//We check whether from the first planet we can reach the last one
-		for(j=1; j<reachable.length; ++j) reachable[j] = 0;
-		for(j=0; j<currentPlanet.closerPlanets.length; ++j ) {
-			reachable[currentPlanet.closerPlanets[j]] = 1;			//Getting the neighbours, setting them as reachable
-			reachableQueue.push(currentPlanet.closerPlanets[j])		//Adding the neighbours to the queue we have to check
-		}
-
-		while(reachableQueue.length != 0){
-			nextIndexInQueue = reachableQueue.shift();
-			nextPlanet = planetsArray[nextIndexInQueue];
-			for(j=0; j<nextPlanet.closerPlanets.length; ++j){
-				if(reachable[nextPlanet.closerPlanets[j]]==0){
-					reachable[nextPlanet.closerPlanets[j]] = 1;
-					reachableQueue.push(nextPlanet.closerPlanets[j])
+	//Now we let know a planet all is links, because right now, a planet A couldn't know that is linked with another planet B because A
+	//has its closer planets(and B isn't one of them), but A could be one of the closer planets from B's point of view
+	/*for(i=0; i<PLANETS_NUMBER; ++i){
+		currentPlanet = planetsArray[i];
+		for(j=0; j<PLANETS_NUMBER; ++j){
+			if(i!=j){
+				nextPlanet = planetsArray[j];
+				console.log(nextPlanet.closerPlanets.length);
+				for(k=0; k<nextPlanet.closerPlanets.length; k++){
+					if(nextPlanet.closerPlanets[k] == i){
+						if(!alreadyConnected(i,j)){
+							//currentPlanet.closerPlanets.push(j);
+						} 
+					}
 				}
 			}
 		}
+	}*/
 
-	}
+	// Now we handle the problem about isolated sub-systems
+	var fullyConnected = false;
+	var reachable = new Array(PLANETS_NUMBER);						//The array of the reachable planets
+	var reachableQueue = [];
+	var nextInQueue;
+	reachable[0] = true;
+	//while(!fullyConnected){
+		currentPlanet = planetsArray[0];			//We check whether from the first planet we can reach the last one
+		for(j=1; j<reachable.length; ++j) reachable[j] = false;
+		for(j=0; j<currentPlanet.closerPlanets.length; ++j ) {
+			reachable[currentPlanet.closerPlanets[j]] = true;			//Getting the neighbours, setting them as reachable
+			reachableQueue.push(currentPlanet.closerPlanets[j])			//Adding the neighbours to the queue we have to check
+		}
+
+		while(reachableQueue.length != 0){
+			nextIndexInQueue = reachableQueue.shift();						//Taking the first element of the queue
+			console.log("Next index: " + nextIndexInQueue);
+			nextPlanet = planetsArray[nextIndexInQueue];
+			for(j=0; j<nextPlanet.closerPlanets.length; ++j){
+				if(reachable[nextPlanet.closerPlanets[j]]==false){			//If we haven't visited this neighbour yet, now it's time to do it
+					reachable[nextPlanet.closerPlanets[j]] = true;
+					reachableQueue.push(nextPlanet.closerPlanets[j]);
+				}
+			}
+		}
+		if(checkReachable(reachable)) console.log("Fully connected!");
+		else console.log("Not connected! :(");
+
+	//}
 	
+}
+
+//Check whether b is in the closerPlanets list of a
+function alreadyConnected(a, b){
+	var alrConn = false;
+	for(i=0; i<planetsArray[a].closerPlanets.length; ++i){
+		if(planetsArray[a].closerPlanets[i] == b){
+			alrConn = true;
+			break;
+		}
+	}
+
+	return alrConn;
+}
+
+function checkReachable(a){
+	var boolVal = true
+	for(i=0; i<a.length; ++i){
+		if(a[i]==false){
+			boolVal = false;
+			break;
+		}
+	}
+	return boolVal;
 }
 
 
