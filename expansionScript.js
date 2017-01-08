@@ -171,7 +171,7 @@ function setPlanetsLink(){
 				intersPoint = lineIntersection(m, q, m_perp, q_perp);	// Intersection between the link and the perpendicular line
 				
 				// When the distance between the intersection point and the center of planetInters is less than radius+50 we mark this link as a wrong link
-				if(distanceBetweenPoints(intersPoint, [planetInters.x, planetInters.y]) < (planetInters.radius + 50 )) wrongLinksArray[j] = 1;
+				if( (distanceBetweenPoints(intersPoint, [planetInters.x, planetInters.y]) < (planetInters.radius + 50 )) && (clippingRect(intersPoint, currentPlanet.x, currentPlanet.y, planet2check.x, planet2check.y))) wrongLinksArray[j] = 1;
 			}
 		}
 		if(wrongLinksArray[2] == 1)currentPlanet.closerPlanets.splice(2,1);
@@ -221,6 +221,15 @@ function setPlanetsLink(){
 
 	//}
 	
+}
+
+function clippingRect(ip, p1x, p1y, p2x, p2y){
+	var valver = false;
+	if( (p1x<p2x) && (p1y<p2y)){if((ip[0]>p1x) && (ip[0]<p2x) && (ip[1]>p1y) && (ip[1]<p2y)) valver = true;}
+	if( (p1x<p2x) && (p1y>p2y)){if((ip[0]>p1x) && (ip[0]<p2x) && (ip[1]<p1y) && (ip[1]>p2y)) valver = true;}
+	if( (p1x>p2x) && (p1y<p2y)){if((ip[0]<p1x) && (ip[0]>p2x) && (ip[1]>p1y) && (ip[1]<p2y)) valver = true;}
+	if( (p1x>p2x) && (p1y>p2y)){if((ip[0]<p1x) && (ip[0]>p2x) && (ip[1]<p1y) && (ip[1]>p2y)) valver = true;}
+	return valver;
 }
 
 function checkReachable(a){
