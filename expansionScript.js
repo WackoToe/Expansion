@@ -180,24 +180,16 @@ function setPlanetsLink(){
 		wrongLinksArray = [0,0,0];
 	}
 
-	//Now we let know a planet all is links, because right now, a planet A couldn't know that is linked with another planet B because A
-	//has its closer planets(and B isn't one of them), but A could be one of the closer planets from B's point of view
-	/*for(i=0; i<PLANETS_NUMBER; ++i){
-		currentPlanet = planetsArray[i];
-		for(j=0; j<PLANETS_NUMBER; ++j){
-			if(i!=j){
-				nextPlanet = planetsArray[j];
-				console.log(nextPlanet.closerPlanets.length);
-				for(k=0; k<nextPlanet.closerPlanets.length; k++){
-					if(nextPlanet.closerPlanets[k] == i){
-						if(!alreadyConnected(i,j)){
-							//currentPlanet.closerPlanets.push(j);
-						} 
-					}
-				}
-			}
-		}
-	}*/
+	// Now we let know a planet all its links, because right now, a planet A couldn't know that is linked with another planet B because A
+	// has its closer planets(and B isn't one of them), but A could be one of the closer planets from B's point of view;
+	for(i=0; i<PLANETS_NUMBER; ++i){
+  		currentPlanet = planetsArray[i];
+  
+  		for(k=0; k < currentPlanet.closerPlanets.length; k++){
+      		nextPlanet = planetsArray[ currentPlanet.closerPlanets[k] ];
+      		if( nextPlanet.closerPlanets.indexOf( i ) < 0 ) nextPlanet.closerPlanets.push(i);
+  		}
+ 	}
 
 	// Now we handle the problem about isolated sub-systems
 	var fullyConnected = false;
@@ -229,19 +221,6 @@ function setPlanetsLink(){
 
 	//}
 	
-}
-
-//Check whether b is in the closerPlanets list of a
-function alreadyConnected(a, b){
-	var alrConn = false;
-	for(i=0; i<planetsArray[a].closerPlanets.length; ++i){
-		if(planetsArray[a].closerPlanets[i] == b){
-			alrConn = true;
-			break;
-		}
-	}
-
-	return alrConn;
 }
 
 function checkReachable(a){
