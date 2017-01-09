@@ -171,7 +171,7 @@ function setPlanetsLink(){
 				intersPoint = lineIntersection(m, q, m_perp, q_perp);	// Intersection between the link and the perpendicular line
 				
 				// When the distance between the intersection point and the center of planetInters is less than radius+50 we mark this link as a wrong link
-				if( (distanceBetweenPoints(intersPoint, [planetInters.x, planetInters.y]) < (planetInters.radius + 50 )) && (clippingRect(intersPoint, currentPlanet.x, currentPlanet.y, planet2check.x, planet2check.y))) wrongLinksArray[j] = 1;
+				if( (distBetwPoints(intersPoint, [planetInters.x, planetInters.y]) < (planetInters.radius + 50 )) && (clippingRect(intersPoint, currentPlanet.x, currentPlanet.y, planet2check.x, planet2check.y))) wrongLinksArray[j] = 1;
 			}
 		}
 		if(wrongLinksArray[2] == 1)currentPlanet.closerPlanets.splice(2,1);
@@ -187,7 +187,7 @@ function setPlanetsLink(){
   
   		for(k=0; k < currentPlanet.closerPlanets.length; k++){
       		nextPlanet = planetsArray[ currentPlanet.closerPlanets[k] ];
-      		if( nextPlanet.closerPlanets.indexOf( i ) < 0 ) nextPlanet.closerPlanets.push(i);
+      		if( nextPlanet.closerPlanets.indexOf(i) < 0 ) nextPlanet.closerPlanets.push(i);
   		}
  	}
 
@@ -197,7 +197,7 @@ function setPlanetsLink(){
 	var reachableQueue = [];
 	var nextInQueue;
 	reachable[0] = true;
-	//while(!fullyConnected){
+	while(!fullyConnected){
 		currentPlanet = planetsArray[0];			//We check whether from the first planet we can reach the last one
 		for(j=1; j<reachable.length; ++j) reachable[j] = false;
 		for(j=0; j<currentPlanet.closerPlanets.length; ++j ) {
@@ -216,13 +216,20 @@ function setPlanetsLink(){
 				}
 			}
 		}
-		if(checkReachable(reachable)) console.log("Fully connected!");
-		else console.log("Not connected! :(");
+		if(checkReachable(reachable)){
+			console.log("Fully connected!");
+			fullyConnected = true;
+		}
+		else{
+			console.log("Not connected! :(");
+			extendIsolatedSystem(reachable);
+		}
 
-	//}
+	}
 	
 }
 
+//Checks whether the point ip is inside the rectangle defined by [p1x,p1y] and [p2x,p2y]
 function clippingRect(ip, p1x, p1y, p2x, p2y){
 	var valver = false;
 	if( (p1x<p2x) && (p1y<p2y)){if((ip[0]>p1x) && (ip[0]<p2x) && (ip[1]>p1y) && (ip[1]<p2y)) valver = true;}
@@ -232,6 +239,7 @@ function clippingRect(ip, p1x, p1y, p2x, p2y){
 	return valver;
 }
 
+//Checks whether the boolean array contains at least a false value. That would mean that there is an isolated subsystem
 function checkReachable(a){
 	var boolVal = true
 	for(i=0; i<a.length; ++i){
@@ -241,6 +249,36 @@ function checkReachable(a){
 		}
 	}
 	return boolVal;
+}
+
+function extendIsolatedSystem(a){
+	var fsa = [];						// fsa is the first subsystem array: contains all the indexes of the planets connected to the planet planetsArray[0]
+	var osa = [];						// osa is the other subsystem array: contains all the indexes of the planets NOT connected to planetsArray[0]
+	var c2ff;															// cptff is the closest planet to firstFalse planet
+	var minDist = Math.sqrt(Math.pow(canw, 2) + Math.pow(canh, 2));		// the minimum distance between c2ff and firstFalse planets
+	var currentPlanet = null;
+	var planet2check = null;
+	var cp = [];						// cp contains the indexes of the 2 planets most close together
+	var dbp = -1;
+	for(i=0; i<a.length; ++i){
+		if(a[i])fsa.push(i);
+		else osa.push(i);
+	}
+
+	for(i=0; i<fsa.length; ++i){
+		currentPlanet = planetsArray[fsa[i]];
+		for(j=0; j<osa.length; ++j){
+			planet2check = planetsArray[osa[j]];
+			dbp = distBetwPoints([currentPlanet.x, currentPlanet.y], [planet2check.x, planet2check.y])
+			if(dbp < minDist){
+				cp = [fsa[i], osa[j]];
+				minDist = dbp;
+			}
+		}
+	}
+
+	planetsArray[cp[0]].closerPlanets.push(cp[1]);
+	planetsArray[cp[1]].closerPlanets.push(cp[0]);
 }
 
 
@@ -275,3 +313,87 @@ window.onresize = function(){
 $("#universeCanvas").mousedown(function(e){
 	console.log("CLICKED!" + e.offsetX + " " + e.offsetY);
 });
+
+
+
+//Isolated subsystem test
+/*		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 70,
+			y: 70,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+
+		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 90,
+			y: 190,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+
+		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 160,
+			y: 70,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+
+		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 180,
+			y: 190,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+
+		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 250,
+			y: 520,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+
+		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 290,
+			y: 450,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+
+		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 370,
+			y: 520,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+
+		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 450,
+			y: 450,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+
+		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 520,
+			y: 520,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+
+		planetsArray.push({																			// No more collisions, we can add the planet to planetsArray
+			x: 590,
+			y: 450,
+			radius: 5,
+			colorTheme: "#3322FF",
+			closerPlanets: null
+		});
+*/
