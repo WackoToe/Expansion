@@ -23,3 +23,19 @@ body{
 	border: 2px solid #0099FF;
 	margin: 25px;
 }
+
+#planetInfo{
+	background-color: #000;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	float: left;
+	box-sizing: border-box;
+	border: 2px solid #0099FF;
+	margin: 25px;
+	position: absolute;
+	top: 625px;
+	width: 900px;
+	height: 250px;
+	display: none;
+}

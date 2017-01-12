@@ -2,7 +2,6 @@ var can = $("#universeCanvas")[0];
 var canw = can.width;
 var canh = can.height;
 var c = can.getContext("2d");
-
 var PLANETS_NUMBER = 10;
 var planetsArray = [];                           						//Contains all the planet inside the universe
 
