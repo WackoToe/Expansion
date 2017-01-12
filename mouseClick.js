@@ -9,7 +9,9 @@ $("#universeCanvas").mousedown(function(e)
 	cp = $("#planetInfo");
 	if(planIndSel != -1) {
         p = planetsArray[planIndSel];
-        cp.radius = p.radius;
+        cp.children()[0].innerHTML = p.radius.toString();
+		cp.children()[1].innerHTML = p.x;
+		cp.children()[2].innerHTML = p.y;
 		cp.show();
 		console.log(cp.radius);
     }
